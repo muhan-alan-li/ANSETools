@@ -1,11 +1,11 @@
-﻿namespace ANSExlsx2txt;
+﻿namespace SharedClasses;
 
 public class Usage
 {
     /// <summary>
-    /// Displays the help message/usage instructions for the app in the command line
+    /// Writes the help message to the console
     /// </summary>
-    public static void PrintUsage()
+    public static void ExcelExportUsage()
     {
         Console.WriteLine(@"
             Script that formats ANSE input files from Excel spreadsheets.
@@ -57,6 +57,50 @@ public class Usage
 
             Input files must be a .xlsx Excel spreadsheet, older .xls files can be converted
             using Excel by utilising the 'export' option.
+        ");
+    }
+    
+    /// <summary>
+    /// Writes the help message to the console
+    /// </summary>
+    public static void DBExportUsage()
+    {
+        Console.WriteLine(@"
+            Script that exports an ANSE database model to either a .in text file or a .xlsx Excel file.
+ 
+            Keyword fields and values are read from the database, and each table is converted
+            either to text or to xlsx. The EPPlus package is used to create a workbook and write
+            to specified worksheets. The configuration file is used to determine which worksheets
+            a database table of declarations will be written to.
+
+            Usage : ANSEdb2xlsx [-c <filename>] [-i <filename>] [-l] [-o <filename>] [-v]
+                    ANSEdb2xlsx [-c <filename>] [-i <filename>] 
+                    ANSEdb2xlsx [-h]
+
+            -c              or --config:            MANDATORY: Config file that helps parse the input
+                                            
+            -h              or --help:              View this help message
+    
+            -i <filename>   or --input=<filename>:  MANDATORY: The database model file to process
+
+            -l              or --logging            Enable basic logging, which is otherwise 
+                                                    disabled without this flag
+    
+            -o <filename>   or --output=<filename>: The location to put the output file.
+                                                    
+                                                    The output file can be either a
+                                                    .xlsx file or a .in file. If not 
+                                                    specified here, the program will 
+                                                    default to creating a .xlsx file
+
+            -v              or --verbose            Enable verbose logging, if both this 
+                                                    and regular logging flags are set, 
+                                                    verbose logging takes precedence. If
+                                                    neither is set, then logging is disabled
+
+            If the above parameters are not specified, the script will attempt to use
+            hard-coded default values. If necessary, these values may be edited; they
+            can be found at the top of the ProcessCommandLineArgs() function.
         ");
     }
 }

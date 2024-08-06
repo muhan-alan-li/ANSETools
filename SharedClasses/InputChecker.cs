@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Serilog;
 
 namespace SharedClasses
 {
@@ -118,6 +119,73 @@ namespace SharedClasses
                 }
             }
             return options;
+        }
+        
+        /// <summary>
+        /// Parses the CLI options object and returns the strings for config, input, and output files
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns>An array of strings, each string representing path to a file</returns>
+        /// <exception cref="ArgumentException">Throws an exception if any input args are invalid</exception>
+        public static string[] CheckArgs(CLIOptions options)
+        {
+            string configFile, inFile, outFile;
+        
+            // Checking for a configuration file
+            if (!string.IsNullOrEmpty(options.ConfigFile)) configFile = options.ConfigFile;
+            else throw new ArgumentException("Error: Must include config file");
+
+            // Checking for a database file
+            if (!string.IsNullOrEmpty(options.InputFile)) inFile = options.InputFile;
+            else throw new ArgumentException("Error: Must include input DB file");
+
+            // Checking for output file
+            if (!string.IsNullOrEmpty(options.OutputFile)) outFile = options.OutputFile;
+            else outFile = $"{options.InputFile.Split('.')[0]}.xlsx";
+            
+            // Log the input arguments
+            Log.Verbose("Input arguments in object form: {@InArgs}", options);
+
+            return [configFile, inFile, outFile];
+        }
+
+        /// <summary>
+        /// Parses the configuration object and returns the special characters for comments, type declaration, and delimiter
+        /// </summary>
+        /// <param name="cfgObj">Object representing the configuration json</param>
+        /// <returns>An array of strings, each string representing a special character</returns>
+        /// <exception cref="ArgumentException">Throws an exception if the configuration json is invalid</exception>
+        public static string[] CheckSpecialChars(dynamic cfgObj)
+        {
+            if (cfgObj == null) throw new ArgumentException("Error: Configuration object is null");
+            
+            // get the comment character from config
+            string commentChar = "#";
+            if (cfgObj["options"]["comment"] is string comm) commentChar = comm;
+
+            // get the delimiter characters from config
+            string delimitHead = "<";
+            string delimitTail = ">";
+            if (cfgObj["options"]["delimiter"] != null)
+            {
+                if (cfgObj["options"]["delimiter"] is string delim)
+                {
+                    delimitHead = delim;
+                    delimitTail = delim;
+                }
+                else if (cfgObj["options"]["delimiter"][0] != null &&
+                         cfgObj["options"]["delimiter"][1] != null)
+                {
+                    delimitHead = cfgObj["options"]["delimiter"][0];
+                    delimitTail = cfgObj["options"]["delimiter"][1];
+                }
+            }
+            
+            // get the splitter character from config
+            string splitter = ";";
+            if (cfgObj["options"]["splitter"] is string split) splitter = split;
+
+            return [commentChar, delimitHead, delimitTail, splitter];
         }
     }
 }

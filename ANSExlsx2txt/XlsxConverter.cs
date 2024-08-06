@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace ANSExlsx2txt;
 
-public class Converter
+public class XlsxConverter
 {
     /* ---- Private Members ---- */
     private static dynamic      cfgObj;
@@ -29,7 +29,7 @@ public class Converter
     /// <param name="options"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ConfigurationException"></exception>
-    public Converter(CLIOptions options)
+    public XlsxConverter(CLIOptions options)
     {
         /*
          * Start by setting up the following

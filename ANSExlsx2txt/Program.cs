@@ -31,13 +31,13 @@ class Program {
             LogHelper.SetLogging(options);
 
             // Enter program
-            Converter convertWorker = new Converter(options);
+            XlsxConverter convertWorker = new XlsxConverter(options);
             convertWorker.RunConvert();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            if (ex is ArgumentException) Usage.PrintUsage();
+            if (ex is ArgumentException) Usage.ExcelExportUsage();
             return;
         }
         
