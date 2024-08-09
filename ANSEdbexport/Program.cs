@@ -28,8 +28,8 @@ class Program
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             
             // Enter program
-            DBConverter convertWorker = new DBConverter();
-            convertWorker.RunConvert(options);
+            DBExporter exportWorker = new DBExporter(options);
+            exportWorker.RunExport();
         }
         catch (Exception ex)
         {

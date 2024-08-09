@@ -21,6 +21,8 @@ public class DBExporter
     {
         string cfgPath, dbPath;
         
+        Log.Verbose("Input arguments in object form: {@InArgs}", options);
+        
         if (!string.IsNullOrEmpty(options.ConfigFile)) cfgPath = options.ConfigFile;
         else throw new ArgumentException("Error: Must include config file");
 

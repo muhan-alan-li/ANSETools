@@ -10,22 +10,16 @@ public class ExportToXlsx
 {
     private static dynamic cfgObj;
     private static SqliteConnection dbConn;
-
     private static ExcelPackage outTable;
-
-    private static int colOffset;
-    
     
     public ExportToXlsx(dynamic _cfgObj, SqliteConnection _dbConn, string _outPath)
     {
         cfgObj = _cfgObj;
         dbConn = _dbConn;
 
+        if (File.Exists(_outPath)) File.Delete(_outPath);
         outTable = new ExcelPackage(new FileInfo(_outPath));
         if (outTable == null) throw new ArgumentException("Error: Output Excel table is null");
-
-        if (cfgObj["options"]["col_offset"] != null) colOffset = (int)cfgObj["options"]["col_offset"];
-        else colOffset = 1;
     }
 
     public void Export()
@@ -59,17 +53,21 @@ public class ExportToXlsx
             Log.Information($"Table {dbTableName, -30} | No configuration file found for this type, skip table");
             return;
         }
+
+        int colOffset = 1;
+        if (cfgObj["options"]["col_offset"] != null) colOffset = (int)cfgObj["options"]["col_offset"];
         
         // find the corresponding worksheet for this type
-        string outSheetName = GetSheetName(cfgObj, dbTableName);
+        string outSheetName = GetSheetName(dbTableName);
         Log.Information($"Table {dbTableName, -30} | Inputs written to worksheet {outSheetName}");
         
         // look for sheet with sheetname, if it doesn't exist, create new sheet with sheetname
-        if (outTable.Workbook.Worksheets[outSheetName] == null) SetupNewSheet(outSheetName);
+        if (outTable.Workbook.Worksheets[outSheetName] == null) SetupNewSheet(outSheetName, colOffset);
         ExcelWorksheet outSheet = outTable.Workbook.Worksheets[outSheetName];
+        colOffset++;
         
         // write type header for readability
-        WriteTypeHeader(dbTableName, outSheet);
+        WriteTypeHeader(dbTableName, outSheet, colOffset);
         
         // Iterate through all rows of db table
         string getDataQuery = $"SELECT * FROM {dbTableName}";
@@ -85,7 +83,7 @@ public class ExportToXlsx
                 outSheet.Cells[currRow, colOffset].Value = dbTableName.Trim();
                 
                 // Write the fields to the rest of the row
-                WriteTypeDeclaration(dataReader, outSheet, currRow);
+                WriteTypeDeclaration(dataReader, outSheet, currRow, colOffset);
                 
                 // Increment and go to next row
                 currRow++;
@@ -99,14 +97,14 @@ public class ExportToXlsx
     /// </summary>
     /// <param name="tableName">Name of the db table (and also the ANSE model type)</param>
     /// <param name="outSheet">Worksheet that data should be written to</param>
-    private static void WriteTypeHeader(string tableName, ExcelWorksheet outSheet)
+    private static void WriteTypeHeader(string tableName, ExcelWorksheet outSheet, int colOffset)
     {
         // insert two rows, set current row to the bottommost row
         int currRow = outSheet.Dimension.Rows + 2;
         outSheet.InsertRow(currRow - 1, 2);
 
         // label the current row with KEYWORD: {typename} for readability
-        var typeNameCell = outSheet.Cells[currRow, (++colOffset)];
+        var typeNameCell = outSheet.Cells[currRow, (colOffset)];
         typeNameCell.Value = $"KEYWORD: {tableName}";
         typeNameCell.Style.Font.Bold = true;
         ResizeColumn(colOffset, $"KEYWORD: {tableName}", outSheet);
@@ -138,7 +136,7 @@ public class ExportToXlsx
     /// <param name="outSheet">Worksheet that the data should be written to</param>
     /// <param name="colOffset">Column offset from which data should be written</param>
     /// <param name="currRow">Current row fir data to be written to</param>
-    private static void WriteTypeDeclaration(SqliteDataReader dataReader, ExcelWorksheet outSheet, int currRow)
+    private static void WriteTypeDeclaration(SqliteDataReader dataReader, ExcelWorksheet outSheet, int currRow, int colOffset)
     {
         Log.Verbose($"\t\tWriting data to Row {currRow, -4}");
         for (int i = 0; i < dataReader.FieldCount; i++)
@@ -217,7 +215,7 @@ public class ExportToXlsx
     /// Creates a new sheet and sets it up for further processing
     /// </summary>
     /// <param name="sheetName">Name of the worksheet to create</param>
-    private static void SetupNewSheet(string sheetName)
+    private static void SetupNewSheet(string sheetName, int colOffset)
     {
         outTable.Workbook.Worksheets.Add(sheetName);
         var initCell = outTable.Workbook.Worksheets[sheetName].Cells[1, colOffset];
@@ -240,7 +238,7 @@ public class ExportToXlsx
     /// <param name="cfgObj">Object representation of the configuration json</param>
     /// <param name="tableName">Name of the db table (also the name of the ANSE model type)</param>
     /// <returns></returns>
-    private static string GetSheetName(dynamic cfgObj, string tableName)
+    private static string GetSheetName(string tableName)
     {
         string sheetName = "INPUTS - MISC";
         var groupings = cfgObj["grouping"];
