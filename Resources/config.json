@@ -21,6 +21,14 @@
     "keywordMarker" : "KEYWORD"
   },
 
+  "grouping" : {
+    "SPATIAL" : ["ASU", "ASU_GROUP", "ASU_GROUP_MEMBER", "ASU_GROUP_TYPE"],
+    "CATEGORICAL" : ["PHYSICAL_STATE", "PHYSICAL_STATE_GROUP", "PHYSICAL_STATE_GROUP_MEMBER", "SPECIES", "SPECIES_GROUP", "SPECIES_GROUP_MEMBER"], 
+    "STRUCTURAL" : ["POOL", "EVENT", "EVENT_POOL", "ACTION_TYPE", "ACTION_PARAMETER_SET", "ACTION_PARAMETER_OUT", "ACTION_PARAMETER_IN"],
+    "CURVES" : ["CURVE", "CURVE_TYPE", "CURVE_TYPE_MEMBER", "CURVE_POINT"],
+    "CMOs" : ["INITIAL_CMO"]
+  },
+
   "types" : {
     "ASU" : [{
       "ID" : { "Type" : "Integer", "Mandatory": true, "Distinct" : true, "Dependency" : [], "Default" : "" },
