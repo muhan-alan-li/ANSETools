@@ -101,7 +101,7 @@ public class XlsxConverter
         if (cfgObj["options"]["splitter"].ToString() is string splitChar) splitterChar = splitChar;
         else throw new ConfigurationException("Error: Configuration options must contain character for splitter");
 
-        if (cfgObj["options"]["min_crumb"] is decimal min) minCrumb = min;
+        if (decimal.Parse(cfgObj["options"]["min_crumb"].ToString()) is decimal min) minCrumb = min;
         else throw new ConfigurationException("Error: Configuration options must contain decimal (or 0) for minimum crumb size");
         
         /*
